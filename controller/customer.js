@@ -41,10 +41,10 @@ let signup =  async(req,res)=>{
 
  }
  
- let getusers = async (req,res)=>{
+ let getUsers = async (req,res)=>{
     let users = await usersSchema.find();
     res.json(users)
  }
 
 
- module.exports = { signup,login,getusers }
+ module.exports = { signup,login,getUsers }

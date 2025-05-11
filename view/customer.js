@@ -1,13 +1,13 @@
 const express = require('express')
-const Router = express.Router()
+const CustomerRouter = express.Router()
 const usersSchema = require('../model/customer')
-const {signup,login ,getusers} = require('../controller/customer')
+const {signup,login ,getUsers} = require('../controller/customer')
 const jwt = require('jsonwebtoken')
 
-Router.post('/signup', signup )
-Router.post( '/login' , login )
+CustomerRouter.post('/signup', signup )
+CustomerRouter.post( '/login' , login )
 
-Router.get('/getUsers', (req,res,next)=>{
+CustomerRouter.get('/getUsers', (req,res,next)=>{
    let token = (req.headers.authorization)
    if(!token){
     res.json({Message :" Token is required"})
@@ -28,6 +28,7 @@ Router.get('/getUsers', (req,res,next)=>{
    }
  
     return console.log("testing")
-} , getusers )
+} , getUsers )
 
-module.exports= Router
+
+module.exports= CustomerRouter
