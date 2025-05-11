@@ -1,5 +1,6 @@
 const usersSchema = require('../model/customer')
-const bcrypt =require ('bcrypt')
+const bcrypt = require('bcryptjs');
+
 const jwt = require('jsonwebtoken')
 
 let signup =  async(req,res)=>{
