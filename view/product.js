@@ -18,6 +18,7 @@ router.post("/uploadProducts",(req,res)=>{
             Price : fields.Price[0],
             Rating : fields.Rating[0],
             Description : fields.Description[0],
+              Category: fields.Category[0]
         }
         if (err) {
             return res.status(400).json({
