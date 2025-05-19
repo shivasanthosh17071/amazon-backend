@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 const usersSchema = require("../model/customer");
 const bcrypt = require("bcryptjs");
-
 const jwt = require("jsonwebtoken");
 
 const signup = async (req, res) => {
@@ -37,88 +35,40 @@ const signup = async (req, res) => {
   }
 };
 
-let login = async (req, res) => {
-  let { Email, Password } = req.body;
+const login = async (req, res) => {
+  try {
+    const { Email, Password } = req.body;
 
-  let usersDetails = await usersSchema.findOne({ Email: Email });
-  if (usersDetails == null) {
-    return res.json({
-      Message: " no users registered with this email",
-    });
+    const usersDetails = await usersSchema.findOne({ Email });
+    if (!usersDetails) {
+      return res.json({ Message: "No user registered with this email" });
+    }
+
+    const passwordResult = bcrypt.compareSync(Password, usersDetails.Password);
+    if (!passwordResult) {
+      return res.json({ Message: "Wrong password" });
+    }
+
+    const token = jwt.sign(
+      { Email: usersDetails.Email, Role: usersDetails.Role },
+      "shh"
+    );
+
+    return res.json({ Success: "Login success", token, usersDetails });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ error: "Server error" });
   }
-  passwordResult = bcrypt.compareSync(Password, usersDetails.Password);
-  console.log(passwordResult);
-  if (passwordResult == false) {
-    return res.json({
-      Message: " wrong password ",
-    });
-  }
-  console.log(usersDetails);
-
-  let token = jwt.sign(
-    { Email: usersDetails.Email, Role: usersDetails.Role },
-    "shh"
-  );
-
-  return res.json({ Success: "Login success", token, usersDetails });
 };
 
-let getUsers = async (req, res) => {
-  let users = await usersSchema.find();
-  res.json(users);
+const getUsers = async (req, res) => {
+  try {
+    const users = await usersSchema.find();
+    res.json(users);
+  } catch (error) {
+    console.error("Get users error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 module.exports = { signup, login, getUsers };
-=======
-const usersSchema = require('../model/customer')
-const bcrypt = require('bcryptjs');
-
-const jwt = require('jsonwebtoken')
-
-let signup =  async(req,res)=>{
-    let {Password} = req.body
-    let hashedPassword = bcrypt.hashSync(Password ,10)
-    console.log(hashedPassword)
-    req.body.Password = hashedPassword   
- let users = new usersSchema(req.body);
- let usersDetails = await users.save();
- return res.json({
-    Success : "data stored successfully",
-    usersDetails
- })
-
-   console.log("testing")
- }
-
- let login =  async(req,res)=>{
-    let {Email,Password} = req.body;
-    
-    let usersDetails = await usersSchema.findOne({Email : Email})
-    if (usersDetails == null){
-        return res.json({
-            Message :" no users registered with this email"
-        })
-    }
-    passwordResult = bcrypt.compareSync( Password , usersDetails.Password)
-    console.log(passwordResult)
-    if (passwordResult == false ){
-        return res.json({
-            Message :" wrong password "
-        })
-    }
-      console.log(usersDetails)
-
-      let token = jwt.sign({Email : usersDetails.Email , Role : usersDetails.Role},"shh")
-
-    return res.json({Success : "Login success" , token, usersDetails})
-
- }
- 
- let getUsers = async (req,res)=>{
-    let users = await usersSchema.find();
-    res.json(users)
- }
-
-
- module.exports = { signup,login,getUsers }
->>>>>>> 4ba61d310ac9da92254bdc9552881ba212636e5d

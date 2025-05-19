@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const express = require("express");
 const CustomerRouter = express.Router();
 const usersSchema = require("../model/customer");
@@ -101,58 +100,30 @@ CustomerRouter.get("/:userId/cart", async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
-=======
-const express = require('express')
-const CustomerRouter = express.Router()
-const usersSchema = require('../model/customer')
-const {signup,login ,getUsers} = require('../controller/customer')
-const jwt = require('jsonwebtoken')
-
-CustomerRouter.post('/signup', signup )
-CustomerRouter.post( '/login' , login )
-
->>>>>>> 4ba61d310ac9da92254bdc9552881ba212636e5d
 // CustomerRouter.get('/getUsers', (req,res,next)=>{
 //    let token = (req.headers.authorization)
 //    if(!token){
 //     res.json({Message :" Token is required"})
 //    }
-<<<<<<< HEAD
 
 //    try{ let result = jwt.verify( token, "shh")
 //     console.log(result)
 //     if(result.Role == 1 ){
 //     next();
-=======
-  
-//    try{ let result = jwt.verify( token, "shh")
-//     console.log(result)
-//     if(result.Role == 1 ){
-//     next(); 
->>>>>>> 4ba61d310ac9da92254bdc9552881ba212636e5d
 //     } else{
 //     return res.json({
 //         message : " You are not a Admin ,only admins can access"
 //     })
 //     }
-<<<<<<< HEAD
 
 //      } catch(err){
 //     res.json(err);
 //    }
 
-=======
-   
-//      } catch(err){
-//     res.json(err);
-//    }
- 
->>>>>>> 4ba61d310ac9da92254bdc9552881ba212636e5d
 //     return console.log("testing")
 // } , getUsers )
 CustomerRouter.get("/getUsers", getUsers);
 
-<<<<<<< HEAD
 // Increase Item Quantity
 CustomerRouter.put("/increaseQuantity/:userId/:productId", async (req, res) => {
   const { userId, productId } = req.params;
@@ -232,7 +203,7 @@ CustomerRouter.put("/decreaseQuantity/:userId/:productId", async (req, res) => {
 CustomerRouter.post("/:userId/order", async (req, res) => {
   const { userId } = req.params;
   const { items, totalAmount, paymentMethod, status, address } = req.body;
-  const adminEmail = "shivasanthoshqt@gmail.com";
+
   const newOrder = {
     items,
     totalAmount,
@@ -255,14 +226,6 @@ CustomerRouter.post("/:userId/order", async (req, res) => {
     res
       .status(200)
       .json({ message: "Order placed successfully", order: newOrder });
-
-    // Send notification to seller
-    // sendEmail(
-    //   adminEmail,
-    //   "New Order Received"
-    //   // `You have a new order for ${product.title}.`
-    // );
-    // res.send({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to place order" });
@@ -291,6 +254,3 @@ CustomerRouter.put("/updateuser", async (req, res) => {
 });
 
 module.exports = CustomerRouter;
-=======
-module.exports= CustomerRouter
->>>>>>> 4ba61d310ac9da92254bdc9552881ba212636e5d
