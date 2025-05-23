@@ -1,7 +1,7 @@
 const express = require("express");
 const CustomerRouter = express.Router();
 const usersSchema = require("../model/customer");
-const { signup, login, getUsers } = require("../controller/customer");
+const { signup, login, getUsers, orders } = require("../controller/customer");
 const jwt = require("jsonwebtoken");
 
 CustomerRouter.post("/signup", signup);
@@ -41,47 +41,6 @@ CustomerRouter.post("/:id/addToCart", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-// CustomerRouter.delete(
-//   "/deleteCartItem/:userId/:productId",
-//   async (req, res) => {
-//     const { userId, productId } = req.params;
-
-//     try {
-//       const user = await usersSchema.findById(userId);
-//       if (!user) {
-//         return res.status(404).json({ message: "User not found" });
-//       }
-
-//       let cart = user.cartItems;
-//       let found = false;
-
-//       // Loop from the end and use splice to delete matching items
-//       for (let i = cart.length - 1; i >= 0; i--) {
-//         if (cart[i].ProductId === productId) {
-//           cart.splice(i, 1);
-//           found = true;
-//         }
-//       }
-
-//       if (!found) {
-//         return res
-//           .status(404)
-//           .json({ message: "No matching items found in cart" });
-//       }
-
-//       await user.save();
-
-//       res.status(200).json({
-//         message: "Matching cart item(s) deleted successfully",
-//         cartItems: user.cartItems,
-//       });
-//     } catch (error) {
-//       console.error("Error deleting cart item:", error);
-//       res.status(500).json({ message: "Server error", error });
-//     }
-//   }
-// );
 
 CustomerRouter.get("/:userId/cart", async (req, res) => {
   const { userId } = req.params;
@@ -200,37 +159,7 @@ CustomerRouter.put("/decreaseQuantity/:userId/:productId", async (req, res) => {
   }
 });
 //  user orders
-CustomerRouter.post("/:userId/order", async (req, res) => {
-  const { userId } = req.params;
-  const { items, totalAmount, paymentMethod, status, address } = req.body;
-
-  const newOrder = {
-    items,
-    totalAmount,
-    paymentMethod,
-    status: status || "Confirmed",
-    address,
-  };
-
-  try {
-    const user = await usersSchema.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    // Add new order to orders array
-    user.orders.push(newOrder);
-
-    // Clear cart
-    user.cartItems = [];
-
-    await user.save();
-    res
-      .status(200)
-      .json({ message: "Order placed successfully", order: newOrder });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to place order" });
-  }
-});
+CustomerRouter.post("/:userId/order", orders);
 // PUT request to update user details
 CustomerRouter.put("/updateuser", async (req, res) => {
   const { Email } = req.body; // Assuming you are sending the user's Email to identify them

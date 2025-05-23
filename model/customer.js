@@ -15,6 +15,7 @@ const itemSchema = new mongoose.Schema(
 // Orders schema
 const orderSchema = new mongoose.Schema(
   {
+    customerId: String,
     items: [itemSchema],
     totalAmount: Number,
     paymentMethod: String, // "UPI" or "Pay on Delivery"

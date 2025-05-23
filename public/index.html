@@ -1,77 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Server</title>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="index.css" />
     <style>
-    #message-container{
+      #message-container {
         width: 600px;
         height: 400px;
         border: 1px solid rgb(255, 0, 0);
-     }
-</style>
-</head>
+      }
+    </style>
+  </head>
 
-<body>
-   <div ><h1>client</h1>
-    <h3 id="count">No of counts :</h3>
-    <input id="name" placeholder="Enter your Name"/><br/><br/><br/>
-    <input id="message" placeholder="Enter your message"/>
-    <button onclick=" sendMessage() " > Send Message</button>
-    <br/>
-    <button onclick="getAllMessages()">see Messages</button>
-</div> 
+  <body>
+    <div>
+      <h1>client</h1>
+      <h3 id="count">No of counts :</h3>
+      <input id="name" placeholder="Enter your Name" /><br /><br /><br />
+      <input id="message" placeholder="Enter your message" />
+      <button onclick=" sendMessage() ">Send Message</button>
+      <br />
+      <button onclick="getAllMessages()">see Messages</button>
+    </div>
 
-<div id="message-container"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" ></script>
-    <script src="http://localhost:8080/socket.io/socket.io.js"></script>
-    <script> 
-   
-     let clientSocket = io(); 
-     let msgDiv= document.getElementById('message-container')
+    <div id="message-container"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
+    <script src="https://amazon-backend-k8m7.onrender.com/socket.io/socket.io.js"></script>
+    <script>
+      let clientSocket = io();
+      let msgDiv = document.getElementById("message-container");
 
-    function sendMessage(){
-     
-    let obj ={
-        Name : document.getElementById('name').value ,
-        Message : document.getElementById('message').value
-    }
-    axios.post('http://localhost:8080/sendMsg',obj)
-    .then((res)=>{
-        clientSocket.emit("message")
-    })
+      function sendMessage() {
+        let obj = {
+          Name: document.getElementById("name").value,
+          Message: document.getElementById("message").value,
+        };
+        axios
+          .post("https://amazon-backend-k8m7.onrender.com/sendMsg", obj)
+          .then((res) => {
+            clientSocket.emit("message");
+          });
+      }
+      clientSocket.on("message", () => {
+        msgDiv.innerHTML = "";
+        axios
+          .get("https://amazon-backend-k8m7.onrender.com/getMsg")
+          .then((res) => {
+            console.log(res.data.data);
+            res.data.data.map((item, i) => {
+              msgDiv.innerHTML += `<b>${item.Name}</b><p>${item.Message}</p><button
+            onclick="deleteMsg('${item._id}')" > Delete for everyone</button><br/>`;
+            });
+          });
+      });
 
-    }
-    clientSocket.on('message',()=>{
-         msgDiv.innerHTML = ""
-        axios.get('http://localhost:8080/getMsg')
-        .then((res)=>{
-            console.log(res.data.data)
-          res.data.data.map((item,i)=>{
-            msgDiv.innerHTML += `<b>${item.Name}</b><p>${item.Message}</p><button
-            onclick="deleteMsg('${item._id}')" > Delete for everyone</button><br/>`
-          })
-        })
-    })
-
-    function getAllMessages(){
-        clientSocket.emit('message')
-    }
-    function deleteMsg(id){
-        console.log(id)
-   axios.delete(`http://localhost:8080/deleteMsg/${id}`)
-   .then((res)=>{
-    console.log(res)
-    if(res.data.message){
-        clientSocket.emit('message')
-    }
-   })
-        
-    }
-
-
-       </script>
-</body>
+      function getAllMessages() {
+        clientSocket.emit("message");
+      }
+      function deleteMsg(id) {
+        console.log(id);
+        axios
+          .delete(`https://amazon-backend-k8m7.onrender.com/deleteMsg/${id}`)
+          .then((res) => {
+            console.log(res);
+            if (res.data.message) {
+              clientSocket.emit("message");
+            }
+          });
+      }
+    </script>
+  </body>
 </html>
