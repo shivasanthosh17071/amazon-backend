@@ -11,7 +11,16 @@ const itemSchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
+// wishlist item schema
+const wishListSchema = new mongoose.Schema(
+  {
+    ProductId: String,
+    Title: String,
+    Price: Number,
+    Thumbnail: String,
+  },
+  { _id: false }
+);
 // Orders schema
 const orderSchema = new mongoose.Schema(
   {
@@ -53,6 +62,7 @@ const usersSchema = new mongoose.Schema(
     // Extra fields for e-commerce
     cartItems: [itemSchema],
     orders: [orderSchema],
+    wishList: [wishListSchema],
   },
   { timestamps: true }
 );

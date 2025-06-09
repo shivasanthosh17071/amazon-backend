@@ -13,7 +13,9 @@ const transporter = nodemailer.createTransport({
 
 const signup = async (req, res) => {
   try {
-    const { Email, PhoneNumber, Password } = req.body;
+    // Convert email to lowercase
+    const Email = req.body.Email.toLowerCase();
+    const { PhoneNumber, Password } = req.body;
 
     // Check if email or phone already exists
     const existingUser = await usersSchema.findOne({
@@ -28,10 +30,14 @@ const signup = async (req, res) => {
 
     // Hash the password
     const hashedPassword = bcrypt.hashSync(Password, 10);
-    req.body.Password = hashedPassword;
 
-    // Save new user
-    const user = new usersSchema(req.body);
+    // Create new user object with email lowercase and hashed password
+    const user = new usersSchema({
+      ...req.body,
+      Email, // lowercase email
+      Password: hashedPassword,
+    });
+
     const userDetails = await user.save();
 
     return res.json({
@@ -46,7 +52,9 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { Email, Password } = req.body;
+    // Convert email to lowercase before querying
+    const Email = req.body.Email.toLowerCase();
+    const { Password } = req.body;
 
     const usersDetails = await usersSchema.findOne({ Email });
     if (!usersDetails) {
@@ -268,4 +276,54 @@ const orders = async (req, res) => {
     res.status(500).json({ error: "Failed to place order" });
   }
 };
-module.exports = { signup, login, getUsers, orders };
+// nodemailer for updated status
+//
+const sendStatusUpdateEmail = async (
+  toEmail,
+  customerName,
+  orderId,
+  newStatus
+) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: toEmail,
+    subject: `Order #${orderId} Status Update`,
+    html: `<p>Dear ${customerName},</p>
+           <p>Your order #${orderId} status has been updated to: <strong>${newStatus}</strong>.</p>
+           <p>Thank you for shopping with Blacknykee!</p>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Status update email sent to ${toEmail}`);
+  } catch (error) {
+    console.error("Failed to send email:", error);
+  }
+};
+const orderStatus = async (req, res) => {
+  const { userId, orderDate, newStatus } = req.body;
+  try {
+    const user = await usersSchema.findById(userId);
+    const order = user.orders.find(
+      (o) => new Date(o.orderDate).toISOString() === orderDate
+    );
+    if (order) {
+      order.status = newStatus;
+      await user.save();
+
+      //mail to customer
+      await sendStatusUpdateEmail(
+        user.Email,
+        user.Name,
+        order._id || "unknown",
+        newStatus
+      );
+      res.json({ message: "Status updated successfully" });
+    } else {
+      res.status(404).json({ message: "Order not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Update failed", error: err });
+  }
+};
+module.exports = { signup, login, getUsers, orders, orderStatus };
